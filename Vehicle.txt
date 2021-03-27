@@ -1,0 +1,390 @@
+
+
+->goto visual studio and create new   web application project-> project name :web api
+-> select web api templite  and ok  and goto solution  Explorer got add new project  asp.net web application
+ and  name is mvc click on ok and select  mvc   templite  and click ok button
+-> and first create Database ->goto new Database and name is vehicle
+ create table Vehicle
+(
+Vin int  primary key Not Null,
+Name varchar(50),
+Date_of_release date,
+)
+Go
+
+create  procedure selectvehicle
+As
+Begin
+select * from vehicle;
+end
+
+create procedure InsertupdateVehicle
+(
+@vid interger,
+@Name varchar(50),
+@Date_of_release date
+)
+As Begin
+if @Action='Insert'
+begin
+Insert into vehicle(vid,Name,Data_of_release)
+values(,@Name,@Date_of_release);
+end
+if@Action='updated'
+Begin
+update Vehicle set Name=@Nmae,date_of_release=@date_of_release where vid=@vid
+End
+End
+
+create procedure Deletevehicle
+(
+@id integer
+)
+as Begin
+delete vehicle where vid=@vid;
+End
+
+
+->goto web api Project->goto Models->add->new item select ado.net Entity data model and name is  Vehicle
+->Vihecle.cs code:
+public class vehicle
+{
+  
+public int Vid{get;set;}
+public  string Name{get;set;}
+public Date Date_of_release{get;set;}
+}
+
+click on controllers folders
+ and select web api2 controller with action using Entity framework->addNameis controlleris Vehiclecontroller
+  goto controller.cs
+public class Vehicle:apiController{
+public Iqueryable<vehicle>Getvehicle()
+{
+return db.vehicle;
+}
+[responceType(typeof(vehicle))]
+public IhttpActionResult Getvehicle(int  vid)
+{
+ vehicle vehicle= db.vehicle.find(vid);
+if(vehicle ==null{
+return Notfound();
+}
+return Ok(vehicle);
+}
+public  IhttpactionResult Putvehicle(int vid,Vehicle vehicle)
+{
+if(!modelState.Isvalid)
+{
+return BadRequest(ModelState);
+}
+if (vid != Vehicle.vid)
+{
+retrun BadRequest();
+}db.ENtity(Vehicle).state=Entitystate.modified;
+try{
+db.SaveChanges();
+}
+catch(DbUpdateConcurrencyException){
+if(!VehicleExists(vid)){
+return NotFound();
+else{
+throw;
+}
+}
+return statecode(HttpStatescode.NoContent);
+}
+[ResponseType(typeof(Vehicle))]
+public IHttpActionResult PostVehicle(Vehicle  Vehicle)
+if(!ModelState.Isvalid)
+{
+return DadRequest(modelState);
+}
+db.Vehicle.Add(Vehicle);
+db.SaveChanges();
+retrun  CreateAtRoute("DefaultAPI",new{vid=Vehicle.vid},Vehicle};
+}
+
+[ResponceType(typeof(Vehicle))]
+public IHttpActionResult DeleteVehicle( int vid)
+{
+Vehicle Vehicle-db.Vehicle.find(vid);
+if( Vehicle== null){
+return NotFound();
+}
+db.Vehicle.Remove(Vehicle);
+db.SaveChanges();
+return Ok(Vehicle);
+}
+protected override void Dispose(bool Disposing){
+if (disposing){
+db.Dispose();
+}
+base.Dispose(disposing);
+}
+private bool vihecleExists(int vid){
+retrun db.vihecle.count(e=>e.vid ==vid)>0;
+}
+}
+}
+
+ and Goto  the App_start->webapiconfig.cs
+check the   name and  routetemplite and default
+
+
+-> goto Mvc project->goto  controller and controller and name is Vehiclecontroller  click on add
+->click on model  add  class-Vehiclemodel 
+
+
+namespace mvc.models
+{
+public class Vehiclemodel
+{
+  
+public int Vid{get;set;}
+public  string Name{get;set;}
+public Date Date_of_release{get;set;}
+}
+}
+
+-> controller to    view to index
+
+<div class=" container">
+<h2>Vehicle</h2>
+<button type="button"class="btn btn-primary"data-toggle="model"date-target="#myModel"onclick="cleartextBod();">add new Vehicle<button><br/><br/>
+<table class="table table-bordered table-hover">
+<thead>
+<tr>
+<th>
+vid
+</th>
+<th>Name</th>
+<th> date_of_release
+</th>
+</tr>
+</thead>
+<tbody>
+</table>
+</div>
+<div class="model fade vid="mymodel"tabindex="-1"role="dialogaria-labelledby="mymodelLabel"aria-Hidden="true">
+<div class="model-dialog'>
+<div class="model-conten">
+<div class="model-header">
+@*<button type="button"class="close"data-dissmiss="model">
+<span aria-hidden="true">&times;<span</button>*@
+<button type="button"class="close data-dismiss="model">&times;</button>
+<h4 class="model-title"vid="mymodellabel">Add Vehicle</h4>
+</div>
+<div class="modal-body">
+<form>
+<div class="form-group">
+<label for="Vehicleid">vid</label>
+<input type="text"class="form-control"vid="Vehicleid" placeholder="vid"disable"/>
+</div>
+<div class="form-group">
+<label for="Name</label>
+<input type="text"class="form-control" id="Name" placeholder="name"/>
+</div>
+<div class="form-group">
+<label for="Date_of_release"</label>
+<input type="text"class="form-control"id="dste_of_release" placeholder="Date_of_release"/>
+</div>
+</form>
+<div><div class="modal-footer">
+<button type="button"class="btn btn-primary"id="btnAdd" onclick="retrun Add();">Add</button>
+
+<button type="button"class="btn btn-primary"id="btnupdate" style="display:none;"onclick="update();">update</button>
+<button type="button"class="btn btn-default"data-dismiss="modal">close</button>
+</div>
+</div>
+</div>
+</div>
+
+
+
+//Valdiadation using jquery
+
+function validate(){
+var is valid(){
+var isvalid=true;
+if($('#vid').val().trim()==''){
+$('#vid').css('boder-color','red');
+ isvalid=false;
+}
+else{
+$('#vid').css('border-color','lightgrey');
+}
+if ($('#Name').val().trim() == "") {
+        $('#Name').css('border-color', 'yellow');
+        isValid = false;
+    }
+    else {
+        $('#Name').css('border-color', 'lightgrey');
+    }
+if ($('#Date_of_release').val().trim() == "") {
+        $('#Date_of_release').css('border-color','lightgrey' );
+        isValid = false;
+    }
+    else {
+        $('#Date_of_release').css('border-color', 'yellow');
+    }
+return isvalid;
+}
+
+ when we create   a  Globalvariables in mvc  project
+
+namespace mvc
+{
+public static class  Globalvariables
+{
+public static Httpclient webapiclient=new Httpclient();
+Globalvariables() 
+{
+webapiclient.baseAddress=new url("http://localhost:64028/api/");
+webapiclient.defaultRequestHeaders.clear();
+webapiclient.defaultrequestHeaders.Accept.Add(new mediaTypewithQualityHeaderValue("application/json""));
+}
+}
+}
+
+
+-> goto Employee controller in mvc
+namespace mvc.controllers
+{
+public class Viheclecontroller:controller
+{
+public ActionResult Index()
+{
+IEnumariable<viheclemodel>viList;
+HtttpResponcemessange response=GlobalVariables.webapiclient.GetAsnc("Vihecle").Result;
+vilist=response.content.ReadAsAsync<IEnumeriable<viheclemodel>>().Result;
+return view(vilist);
+
+}
+[httpGet]
+public ActionResult Create()
+{
+return View("Create");
+}
+[httpPost]
+public ActionResult create(Vihecleviewmodel vm){
+Vihecleclient vc=new Vihecleclient();
+vc.Create(vm.Vihecle);
+retrun RedirecttoAction("Index");
+}
+public ActionResult Delete(int vid){
+Vihecleclient vc= new  Vihecleclient ();
+vc.Delete(vid);
+retrun redirectToAction("index");
+}
+[httpGet]
+public ActionResult Edit(int vid){
+vihecleclient vc=new vihecleclient();
+Viheclemodel vm=new VihecleModel();
+vm.vihecle=vc.find(vid);
+retru view("Edit",vm);
+}
+[httpPost]
+public ActionResult Edit(viheclemodel vm)
+{
+viheclclient vc= new vihecleclient();
+vc.Edit(vm.vihecle);
+return RedirectToAction("Index");
+}
+}
+}
+
+->goto index 
+@{ViewBag.Title = "Index";}  
+<h2>Index</h2>  
+<div align="center">  
+    <a href="@Url.Action(" Create"," Vihecle ")"> Add New Vihecle </a> <br /> <br />  
+    <table cellpadding="2" class="table" cellspacing="2" border="1">  
+        <tr class="btn-primary">  
+<th>Name></th>
+<th>Date_of_Relese</th>
+@foreach(var vihecle in ViewBag.listVihecle){<tr class="btn-success">
+<td>@vihecle.vid</td>
+<td>@vihecle.Name</td>
+<td>@vihecle.date_of_release</td>
+<a  onclick="return confirm('Do you want to Delete?')"href="@url.Action("delete","Vihecle",new{vid=vihecle.vid})">Delete</a> || <a href="@url.Action("Edit","Vihecle",new{vid=vihecle.vid})
+"Edit</a>
+</td>
+</tr>
+}
+</table>
+</div>
+
+->goto Create.cshtml
+@{ViewBag.Title = "Create";  
+}  @model mvc.viewmodel.viheclemodel
+
+<h2> Create </h2>  
+<div align="center">  
+    @using(Html.BeginForm("create", "Vihecle", FormMethod.Post))  
+    {  
+    <table class="table"> 
+<tr>  
+            <td>@Html.LabelFor(model => model.vihecle.Name) </td>  
+            <td>@Html.TextBoxFor(model => model.vihecle.Name) </td>  
+        </tr>
+<tr>  
+            <td>@Html.LabelFor(model => model.vihecle.Data_of_release) </td>  
+            <td>@Html.TextBoxFor(model => model.vihecle.Date_of_release) </td>  
+        </tr> 
+<tr>  
+            <td></td>  
+            <td><input type="submit" value="Save" /></td>  
+        </tr>  
+    </table>  
+    } </div> 
+
+->goto Edit.cshtml
+
+@{ViewBag.Title = "Create";  
+}  @model mvc.viewmodel.viheclemodel
+
+<h2> Edit </h2> 
+<div align="center" width="500px"> @using(Html.BeginForm("Edit", "Vihecle", FormMethod.Post))  
+    {  
+    <table class="table" width="400px" cellpadding="20">  
+        <tr class="btn-default">  
+            <td> @Html.LabelFor(model => model.Vihecle.Name) </td>  
+            <td> @Html.TextBoxFor(model => model.vihecle.Name) </td>  
+        </tr>  
+<tr>  
+            <td> @Html.LabelFor(model => model.vihecle.Data_of_release) </td>  
+            <td> @Html.TextBoxFor(model => model.vihecle.Data_of_release) </td>  
+        </tr> 
+
+<td> <input type="submit" value="Save" /> & nbsp; <a class="btn-primary" href="@Url.Action(" Index "," Vihecle ")"> Back </a> @Html.HiddenFor(model => model.vihecle.VId) </td>  
+        </tr>  
+    </table>  
+    } </div> 
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
